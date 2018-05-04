@@ -41,7 +41,8 @@ class ValueIterationAgent(ValueEstimationAgent):
         self.mdp = mdp
         self.discount = discount
         self.iterations = iterations
-        self.values = util.Counter() # A Counter is a dict with default 0
+        self.values = util.Counter()  # A Counter is a dict with default 0
+        self.cur_values = util.Counter()
 
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
@@ -49,6 +50,7 @@ class ValueIterationAgent(ValueEstimationAgent):
         it_counter = 0
         # loop through iterations
         while it_counter != self.iterations:
+            self.cur_values = self.values.copy()
             # get states and loop through them
             states = self.mdp.getStates()
             for state in states:
@@ -57,15 +59,18 @@ class ValueIterationAgent(ValueEstimationAgent):
                     continue
                 # get possible actions and loop through them
                 actions = self.mdp.getPossibleActions(state)
+                action_scores = util.Counter()
                 for action in actions:
                     # get q value given current state and action
                     score = self.computeQValueFromValues(state, action)
-                    print score
+                    action_scores[action] = score
                     # add max q value to dictionary
-                    self.values[action] = max(self.values[action], score)
+
+                self.values[state] = action_scores[action_scores.argMax()]
+
             # update the counter
             it_counter += 1
-
+        self.cur_values = self.values.copy()
 
     def getValue(self, state):
         """
@@ -86,7 +91,9 @@ class ValueIterationAgent(ValueEstimationAgent):
         # loop through transition states and probabilities
         for nextState, probability in transitions:
             # calculate q value using probability, reward, discount, and values in dictionary
-            q += probability * (self.mdp.getReward(state, action, nextState) + self.discount * self.values[nextState])
+            q += self.cur_values[nextState] * self.discount * probability
+            q += self.mdp.getReward(state, action, nextState)
+            print self.cur_values[nextState] , self.discount , probability , self.mdp.getReward(state, action, nextState)
         return q
 
     def computeActionFromValues(self, state):
