@@ -43,6 +43,7 @@ class QLearningAgent(ReinforcementAgent):
         ReinforcementAgent.__init__(self, **args)
 
         "*** YOUR CODE HERE ***"
+        # init dictionary counter
         self.q_value = util.Counter()
 
     def getQValue(self, state, action):
@@ -63,15 +64,29 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
+        # init min q
         q = float('-inf')
+
+        # create list if action
         action_list = []
+
+        # get legal actions
         legal_actions = self.getLegalActions(state)
+
+        # if there are no legal actions or is terminal state, return 0
         if len(legal_actions) == 0:
             return 0.0
         else:
+            # loop through legal actions
             for action in legal_actions:
+
+                # add each q value to list
                 action_list.append(self.getQValue(state, action))
+
+                # set q to max action
                 q = max(action_list)
+
+                # if q is less than
                 if q < self.getQValue(state, action):
                     q = self.getQValue(state, action)
             # print q
@@ -84,16 +99,27 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
+        # init max q
         max_q = float('-inf')
+
+        # get legal actions
         legal_actions = self.getLegalActions(state)
+
+        # init cur action
         cur_action = None
+
+        # if there are no legal actions, return none
         if len(legal_actions) == 0:
             return None
         else:
+            # loop through legal actions
             for action in legal_actions:
+                # get q value
                 q = self.getQValue(state, action)
+                # if max is less than current, reset
                 if max_q < q:
                     max_q = q
+                    # set cur action with highest rated action
                     cur_action = action
         return cur_action
 
@@ -113,10 +139,14 @@ class QLearningAgent(ReinforcementAgent):
         action = None
 
         "*** YOUR CODE HERE ***"
+        # init probability
         probability = self.epsilon
+
+        # pick randomly from a list of legal actions
         if util.flipCoin(probability):
             return random.choice(legal_actions)
         else:
+            # compute action
             action = self.computeActionFromQValues(state)
         return action
 
@@ -130,9 +160,16 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
+        # init alpha
         alpha = self.alpha
+
+        # set q value
         q_value = self.getQValue(state, action)
+
+        # add reward to product of next state's value and discount
         val = reward + (self.computeValueFromQValues(nextState) * self.discount)
+
+        #
         self.q_value[(state, action)] = ((1 - alpha) * q_value) + (alpha * val)
 
     def getPolicy(self, state):
@@ -169,7 +206,9 @@ class PacmanQAgent(QLearningAgent):
         informs parent of action for Pacman.  Do not change or remove this
         method.
         """
+        # get action
         action = QLearningAgent.getAction(self,state)
+
         self.doAction(state,action)
         return action
 
@@ -196,8 +235,12 @@ class ApproximateQAgent(PacmanQAgent):
           where * is the dotProduct operator
         """
         "*** YOUR CODE HERE ***"
+        # get features for feature vector
         featureVector = self.featExtractor.getFeatures(state, action)
+
+        # multiply feature vector with weights
         q = featureVector * self.weights
+
         return q
 
     def update(self, state, action, nextState, reward):
@@ -205,11 +248,21 @@ class ApproximateQAgent(PacmanQAgent):
            Should update your weights based on transition
         """
         "*** YOUR CODE HERE ***"
+        # get q value
         q_value = self.getQValue(state, action)
+
+        # add reward to product of next state's value and discount
         val = reward + (self.getValue(nextState) * self.discount)
+
+        # subtract current q value
         val -= self.getQValue(state, action)
+
+        # get features
         feats = self.featExtractor.getFeatures(state, action)
+
+        # loop through features
         for f in feats:
+            # 
             self.weights[f] += val * feats[f] * self.alpha
 
     def final(self, state):

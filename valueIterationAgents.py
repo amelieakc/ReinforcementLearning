@@ -46,30 +46,46 @@ class ValueIterationAgent(ValueEstimationAgent):
 
         # Write value iteration code here
         "*** YOUR CODE HERE ***"
+
         # keep track of iterations
         it_counter = 0
+
         # loop through iterations
         while it_counter != self.iterations:
+
+            # copy dictionary into cur_values
             self.cur_values = self.values.copy()
+
             # get states and loop through them
             states = self.mdp.getStates()
             for state in states:
+
                 # if terminal state continue
                 if self.mdp.isTerminal(state):
                     continue
+
                 # get possible actions and loop through them
                 actions = self.mdp.getPossibleActions(state)
+
+                # dictionary of actions
                 action_scores = util.Counter()
+
+                # loop through actions
                 for action in actions:
+
                     # get q value given current state and action
                     score = self.computeQValueFromValues(state, action)
-                    action_scores[action] = score
-                    # add max q value to dictionary
 
+                    # add qvalue to dictionary
+                    action_scores[action] = score
+
+                # add max q value to dictionary
                 self.values[state] = action_scores[action_scores.argMax()]
 
             # update the counter
             it_counter += 1
+
+        # copy dictionary again
         self.cur_values = self.values.copy()
 
     def getValue(self, state):
@@ -85,15 +101,22 @@ class ValueIterationAgent(ValueEstimationAgent):
           value function stored in self.values.
         """
         "*** YOUR CODE HERE ***"
+
         # get transition states and probabilities
         transitions = self.mdp.getTransitionStatesAndProbs(state, action)
+
         q = 0
+
         # loop through transition states and probabilities
         for nextState, probability in transitions:
+
             # calculate q value using probability, reward, discount, and values in dictionary
+            # sum probability, discount, and the next state's value
             q += self.cur_values[nextState] * self.discount * probability
+
+            # add reward
             q += self.mdp.getReward(state, action, nextState)
-            # print self.cur_values[nextState] , self.discount , probability , self.mdp.getReward(state, action, nextState)
+
         return q
 
     def computeActionFromValues(self, state):
@@ -108,22 +131,29 @@ class ValueIterationAgent(ValueEstimationAgent):
         "*** YOUR CODE HERE ***"
         # get possible actions given a state
         actions = self.mdp.getPossibleActions(state)
+
         # allocate a best choice for action
         best_action = None
+
         # set max to negative infinity
         max = float('-inf')
+
         # loop through actions
         for action in actions:
+
             # if there are no legal actions, return None
             if self.mdp.isTerminal(state):
                 return None
+
             # compute q value based on given state and action
             bestQ = self.computeQValueFromValues(state, action)
+
             # reset max if less than q value
             if max < bestQ:
                 # reset action choice and max
                 best_action = action
                 max = bestQ
+
         return best_action
 
     def getPolicy(self, state):
