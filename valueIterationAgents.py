@@ -93,7 +93,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             # calculate q value using probability, reward, discount, and values in dictionary
             q += self.cur_values[nextState] * self.discount * probability
             q += self.mdp.getReward(state, action, nextState)
-            print self.cur_values[nextState] , self.discount , probability , self.mdp.getReward(state, action, nextState)
+            # print self.cur_values[nextState] , self.discount , probability , self.mdp.getReward(state, action, nextState)
         return q
 
     def computeActionFromValues(self, state):

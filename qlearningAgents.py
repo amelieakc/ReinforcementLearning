@@ -63,6 +63,7 @@ class QLearningAgent(ReinforcementAgent):
           terminal state, you should return a value of 0.0.
         """
         "*** YOUR CODE HERE ***"
+        q = float('-inf')
         action_list = []
         legal_actions = self.getLegalActions(state)
         if len(legal_actions) == 0:
@@ -70,7 +71,11 @@ class QLearningAgent(ReinforcementAgent):
         else:
             for action in legal_actions:
                 action_list.append(self.getQValue(state, action))
-        return max(action_list)
+                q = max(action_list)
+                if q < self.getQValue(state, action):
+                    q = self.getQValue(state, action)
+            # print q
+        return q
 
     def computeActionFromQValues(self, state):
         """
@@ -79,15 +84,18 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
+        max_q = float('-inf')
         legal_actions = self.getLegalActions(state)
-        action_list = []
+        cur_action = None
         if len(legal_actions) == 0:
             return None
         else:
             for action in legal_actions:
-                action_list.append(self.getQValue(state, action), action)
-        q_value, action = max(action_list)
-        return q_value, action
+                q = self.getQValue(state, action)
+                if max_q < q:
+                    max_q = q
+                    cur_action = action
+        return cur_action
 
     def getAction(self, state):
         """
@@ -122,9 +130,10 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
+        alpha = self.alpha
         q_value = self.getQValue(state, action)
         val = reward + (self.computeValueFromQValues(nextState) * self.discount)
-
+        self.q_value[(state, action)] = ((1 - alpha) * q_value) + (alpha * val)
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
@@ -187,7 +196,7 @@ class ApproximateQAgent(PacmanQAgent):
           where * is the dotProduct operator
         """
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        
 
     def update(self, state, action, nextState, reward):
         """
