@@ -262,7 +262,7 @@ class ApproximateQAgent(PacmanQAgent):
 
         # loop through features
         for f in feats:
-            # 
+            #
             self.weights[f] += val * feats[f] * self.alpha
 
     def final(self, state):
